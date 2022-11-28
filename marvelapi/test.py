@@ -1,8 +1,12 @@
 import datetime
-from keys import PUBLIC_KEY,PRIVATE_KEY
+# from keys import PUBLIC_KEY,PRIVATE_KEY
 import requests
 import hashlib
 from pprint import pprint as pp
+
+
+PRIVATE_KEY = env('PRIVATE_KEY')
+
 
 
 

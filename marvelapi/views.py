@@ -1,13 +1,23 @@
+from os import environ
 from django.shortcuts import render
 from marvelapi.models import Marvel
 import requests
-from .keys import PUBLIC_KEY, PRIVATE_KEY
 import hashlib
 import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import json
+import environ
+
+
+env = environ.Env()
+environ.Env.read_env()
+
+
 
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d%H:%M:%S')
+PRIVATE_KEY = env('PRIVATE_KEY')
+PUBLIC_KEY = env('PUBLIC_KEY')
 
 
 def hash_params():
@@ -42,12 +52,7 @@ def get_from_database(request):
     
 @api_view(['GET'])
 def get_from_marvel(request):
-    for i in get_characters():
-        return Response({'name': i['name']}) 
-    #list all characters to response
-
-    characters = get_characters()
-    return characters
+    
 
 # def get_characters(request):
 #       url = f'https://gateway.marvel.com:443/v1/public/characters?name={char_name}'
