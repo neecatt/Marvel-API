@@ -1,4 +1,3 @@
-from os import environ
 from django.shortcuts import render
 from marvelapi.models import Marvel
 import requests
@@ -6,20 +5,17 @@ import hashlib
 import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-import json
-import environ
+from dotenv import load_dotenv
+import os
+
+#environement variables
+load_dotenv()
+PRIVATE_KEY = os.getenv('PRIVATE_KEY')
+PUBLIC_KEY = os.getenv('PUBLIC_KEY')
 
 
-env = environ.Env()
-environ.Env.read_env()
-
-
-
+# Creating hash for API
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d%H:%M:%S')
-PRIVATE_KEY = env('PRIVATE_KEY')
-PUBLIC_KEY = env('PUBLIC_KEY')
-
-
 def hash_params():
     hash_md5 = hashlib.md5()
     hash_md5.update(f'{timestamp}{PRIVATE_KEY}{PUBLIC_KEY}'.encode('utf-8'))
@@ -28,12 +24,15 @@ def hash_params():
 
 params = {'ts': timestamp, 'apikey': PUBLIC_KEY, 'hash': hash_params()}
 
+# Getting data from Marvel API
 def get_characters():
     url = f'https://gateway.marvel.com:443/v1/public/characters'
     response = requests.get(url, params=params).json()
     character = response['data']['results']
     return character
 
+
+# Seed data from API to sqlite database
 @api_view(['POST'])
 def seed_characters(request):
     for i in get_characters():
@@ -41,36 +40,12 @@ def seed_characters(request):
         character.save()
     return Response({'message': 'Characters seeded successfully'})
 
+
+# Get data from sqlite database
 @api_view(['GET'])
 def get_from_database(request):
     for i in Marvel.objects.all():
         return Response({'name': i.character}) 
-    #list all characters to response
-
     characters = Marvel.objects.all()
     return characters
     
-@api_view(['GET'])
-def get_from_marvel(request):
-    
-
-# def get_characters(request):
-#       url = f'https://gateway.marvel.com:443/v1/public/characters?name={char_name}'
-    
-    # all_characters = {}
-    # if 'char_name' in request.GET:
-    #     char_name = request.GET['char_name']
-      
-    #     response = requests.get(url, params=params)
-    #     data = response.json()
-    #     characters = data['data']['results']
-        
-    #     for character in characters:
-    #         char_data = Marvel(
-    #             char_name = character['name'],
-    #         )
-    #         char_data.save()
-    #         all_characters = Marvel.objects.all().order_by('-id')
-    
-    # return render(request, 'marvel/characters.html', {'all_characters': all_characters})        
-            
