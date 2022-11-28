@@ -3,9 +3,14 @@ import datetime
 import requests
 import hashlib
 from pprint import pprint as pp
+import environ
 
+env = environ.Env()
+env.read_env()
 
 PRIVATE_KEY = env('PRIVATE_KEY')
+PUBLIC_KEY = env('PUBLIC_KEY')
+
 
 
 
